@@ -8,15 +8,13 @@ import (
 	"github.com/tim-st/go-unicat"
 )
 
-type countType = uint8
-
 // Segment is a part of a given byte slice with the property that
 // the segment is either a word or each rune in the segment is in the same
 // General Unicode Category.
 type Segment struct {
 	Segment   []byte
 	Category  Category
-	RuneCount countType
+	RuneCount uint8
 }
 
 func (s Segment) String() string {
@@ -31,11 +29,11 @@ func Segments(text []byte) []Segment {
 	var segments = make([]Segment, 0, len(text)/3) // TODO: cap ok?
 
 	firstRuneIsLetterUppercase := false
-	numberLowercaseLettersInSegment := countType(0)
-	numberUppercaseLettersInSegment := countType(0)
+	numberLowercaseLettersInSegment := uint8(0)
+	numberUppercaseLettersInSegment := uint8(0)
 	segmentStartIdx := 0
 	r, i := utf8.DecodeRune(text[:])
-	runeCount := countType(0)
+	runeCount := uint8(0)
 	prevCat := unicat.From(r)
 	for {
 		runeCount++
@@ -56,6 +54,7 @@ func Segments(text []byte) []Segment {
 			currentRune, rSize := utf8.DecodeRune(text[i:])
 			i += rSize
 			currentCat = unicat.From(currentRune)
+			// TODO: support combining marks
 			if prevCat.IsLetter() && currentCat.IsLetter() {
 				prevCat = currentCat
 				continue
